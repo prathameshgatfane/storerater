@@ -24,15 +24,13 @@ export default function Navbar() {
               <NavLink className="nav-link" to="/admin/add-user">Add User</NavLink>
               <NavLink className="nav-link" to="/admin/users">Users List</NavLink>
               <NavLink className="nav-link" to="/admin/stores">Stores List</NavLink>
-
             </>
-            
           )}
           {user?.role === "OWNER" && (
             <NavLink className="nav-link" to="/owner">Owner</NavLink>
           )}
         </div>
-        <div className="navbar-nav ms-auto">
+        <div className="navbar-nav ms-auto align-items-center">
           {!user ? (
             <>
               <NavLink className="nav-link" to="/login">Login</NavLink>
@@ -43,7 +41,16 @@ export default function Navbar() {
               <span className="navbar-text me-3">
                 {user.name} • {user.role}
               </span>
-              <button className="btn btn-sm btn-outline-light" onClick={handleLogout}>
+              <NavLink
+                className="btn btn-sm btn-outline-warning me-2"
+                to="/change-password"
+              >
+                Change Password
+              </NavLink>
+              <button
+                className="btn btn-sm btn-outline-light"
+                onClick={handleLogout}
+              >
                 Logout
               </button>
             </>

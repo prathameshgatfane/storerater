@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../api";
 
@@ -9,7 +9,7 @@ export default function UsersTable() {
   const [error, setError] = useState("");
   const navigate = useNavigate();
 
-  const fetchUsers = async () => {
+  const fetchUsers = useCallback(async () => {
     setLoading(true);
     setError("");
     try {
@@ -20,13 +20,13 @@ export default function UsersTable() {
       setError("Failed to load users");
     }
     setLoading(false);
-  };
+  }, [filters]);
 
   useEffect(() => {
     fetchUsers();
-  }, [filters]);
+  }, [fetchUsers]);
 
-  const handleChange = e => {
+  const handleChange = (e) => {
     setFilters({ ...filters, [e.target.name]: e.target.value });
   };
 
@@ -38,8 +38,8 @@ export default function UsersTable() {
     if (!window.confirm("Are you sure you want to delete this user?")) return;
     try {
       await api.delete(`/admin/users/${id}`);
-      setUsers(users.filter(u => u.id !== id));
-    } catch (err) {
+      setUsers(users.filter((user) => user.id !== id));
+    } catch {
       alert("Failed to delete user.");
     }
   };
@@ -47,8 +47,6 @@ export default function UsersTable() {
   return (
     <div>
       <h2>Users</h2>
-
-      {/* Filters */}
       <div className="filters mb-3">
         <input type="text" name="q" placeholder="Search by name" value={filters.q} onChange={handleChange} />
         <input type="text" name="email" placeholder="Search by email" value={filters.email} onChange={handleChange} />
@@ -82,16 +80,22 @@ export default function UsersTable() {
                 <td colSpan="5">No users found</td>
               </tr>
             ) : (
-              users.map(user => (
+              users.map((user) => (
                 <tr key={user.id}>
                   <td>{user.name}</td>
                   <td>{user.email}</td>
                   <td>{user.address}</td>
                   <td>{user.role.replace("_", " ")}</td>
                   <td>
-                    <button className="btn btn-sm btn-primary me-1" onClick={() => navigate(`/admin/users/${user.id}`)}>View</button>
-                    <button className="btn btn-sm btn-warning me-1" onClick={() => handleEdit(user.id)}>Edit</button>
-                    <button className="btn btn-sm btn-danger" onClick={() => handleDelete(user.id)}>Delete</button>
+                    <button className="btn btn-sm btn-primary me-1" onClick={() => navigate(`/admin/users/${user.id}`)}>
+                      View
+                    </button>
+                    <button className="btn btn-sm btn-warning me-1" onClick={() => handleEdit(user.id)}>
+                      Edit
+                    </button>
+                    <button className="btn btn-sm btn-danger" onClick={() => handleDelete(user.id)}>
+                      Delete
+                    </button>
                   </td>
                 </tr>
               ))

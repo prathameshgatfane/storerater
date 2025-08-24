@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../api";
 
@@ -9,7 +9,7 @@ export default function AdminStoresTable() {
   const [error, setError] = useState("");
   const navigate = useNavigate();
 
-  const fetchStores = async () => {
+  const fetchStores = useCallback(async () => {
     setLoading(true);
     setError("");
     try {
@@ -20,21 +20,29 @@ export default function AdminStoresTable() {
       setError("Failed to load stores");
     }
     setLoading(false);
-  };
+  }, [filters]);
 
-  useEffect(() => { fetchStores(); }, [filters]);
+  useEffect(() => {
+    fetchStores();
+  }, [fetchStores]);
 
-  const handleChange = e => {
+  const handleChange = (e) => {
     setFilters({ ...filters, [e.target.name]: e.target.value });
   };
 
-  const handleEdit = id => { navigate(`/admin/stores/${id}/edit`); };
-  const handleView = id => { navigate(`/admin/stores/${id}`); };
-  const handleDelete = async id => {
+  const handleEdit = (id) => {
+    navigate(`/admin/stores/${id}/edit`);
+  };
+
+  const handleView = (id) => {
+    navigate(`/admin/stores/${id}`);
+  };
+
+  const handleDelete = async (id) => {
     if (!window.confirm("Delete this store?")) return;
     try {
       await api.delete(`/admin/stores/${id}`);
-      setStores(stores.filter(s => s.id !== id));
+      setStores(stores.filter((store) => store.id !== id));
     } catch {
       alert("Failed to delete store");
     }
@@ -48,7 +56,12 @@ export default function AdminStoresTable() {
         <input type="text" name="email" placeholder="Search by email" value={filters.email} onChange={handleChange} />
         <input type="text" name="address" placeholder="Search by address" value={filters.address} onChange={handleChange} />
       </div>
-      {loading ? <p>Loading...</p> : error ? <p className="text-danger">{error}</p> : (
+
+      {loading ? (
+        <p>Loading...</p>
+      ) : error ? (
+        <p className="text-danger">{error}</p>
+      ) : (
         <table className="table">
           <thead>
             <tr>
@@ -62,9 +75,11 @@ export default function AdminStoresTable() {
           </thead>
           <tbody>
             {stores.length === 0 ? (
-              <tr><td colSpan="5">No stores found</td></tr>
+              <tr>
+                <td colSpan="6">No stores found</td>
+              </tr>
             ) : (
-              stores.map(store => (
+              stores.map((store) => (
                 <tr key={store.id}>
                   <td>{store.name}</td>
                   <td>{store.email}</td>
@@ -72,9 +87,15 @@ export default function AdminStoresTable() {
                   <td>{store.rating}</td>
                   <td>{store.rating_count}</td>
                   <td>
-                    <button className="btn btn-sm btn-primary me-1" onClick={() => handleView(store.id)}>View</button>
-                    <button className="btn btn-sm btn-warning me-1" onClick={() => handleEdit(store.id)}>Edit</button>
-                    <button className="btn btn-sm btn-danger" onClick={() => handleDelete(store.id)}>Delete</button>
+                    <button className="btn btn-sm btn-primary me-1" onClick={() => handleView(store.id)}>
+                      View
+                    </button>
+                    <button className="btn btn-sm btn-warning me-1" onClick={() => handleEdit(store.id)}>
+                      Edit
+                    </button>
+                    <button className="btn btn-sm btn-danger" onClick={() => handleDelete(store.id)}>
+                      Delete
+                    </button>
                   </td>
                 </tr>
               ))

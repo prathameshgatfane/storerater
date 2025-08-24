@@ -16,7 +16,11 @@ import EditUser from "./components/EditUser";
 import AdminStoresTable from "./components/AdminStoresTable";
 import StoreDetails from "./components/StoreDetails";
 import EditStore from "./components/EditStore";
+import ChangePassword from "./components/ChangePassword";
+import StoreOwnerDashboard from './pages/StoreOwnerDashboard';
+
 import Footer from "./components/Footer";
+
 
 // temporary placeholder page for store owners
 const OwnerDashboard = () => <div className="container py-3"><h3>Owner Dashboard</h3></div>;
@@ -45,7 +49,24 @@ function App() {
               <Route path="/admin/stores/:id" element={<StoreDetails />} />
               <Route path="/admin/stores/:id/edit" element={<EditStore />} />
               <Route path="*" element={<Navigate to="/" replace />} />
+              <Route
+                  path="/change-password"
+                  element={
+                    <PrivateRoute>
+                      <ChangePassword />
+                    </PrivateRoute>
+                  }
+                />
+                <Route
+                path="/store-owner/dashboard"
+                element={
+                  <RoleRoute roles={['STORE_OWNER']}>
+                    <StoreOwnerDashboard />
+                  </RoleRoute>
+                }
+              />
             </Routes>
+            
           </div>
 
           {/* Footer sticks to bottom */}
