@@ -1,38 +1,63 @@
-import React, { useState } from 'react';
-import axios from 'axios';
-import { useNavigate } from 'react-router-dom'; // ADD THIS
+import React, { useState } from "react";
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";  // Import your AuthContext hook
 
-export default function Signup() {
-  const [form, setForm] = useState({ name: '', email: '', address: '', password: '' });
-  const [message, setMessage] = useState('');
-  const navigate = useNavigate(); // ADD THIS
+function Signup() {
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [address, setAddress] = useState("");
+  const [password, setPassword] = useState("");
+  const [message, setMessage] = useState("");
+  const navigate = useNavigate();
+  const { login } = useAuth();  // Destructure login function from context
 
-  const onChange = e => setForm({ ...form, [e.target.name]: e.target.value });
-
-  const handleSignup = async e => {
+  const handleSignup = async (e) => {
     e.preventDefault();
+    setMessage("");
     try {
-      const res = await axios.post('http://localhost:4000/api/auth/signup', form);
-      localStorage.setItem('token', res.data.token);
-      setMessage('Signup successful!');
-      // Wait briefly and then redirect
-      setTimeout(() => {
-        navigate('/stores'); // Change to "/login" if you want
-      }, 1000);
+      const res = await axios.post("http://localhost:4000/api/auth/signup", {
+        name,
+        email,
+        address,
+        password,
+      });
+      const token = res.data.token;
+      localStorage.setItem("token", token);
+      login(token);   // Update AuthContext with new token & user info
+
+      setMessage("Signup successful!");
+      navigate("/"); // Redirect normal users to home page after signup
     } catch (err) {
-      setMessage('Signup failed: ' + (err.response?.data?.message || err.message));
+      setMessage("Signup failed: " + (err.response?.data?.error || "Server error"));
     }
   };
 
   return (
-    <form onSubmit={handleSignup} style={{ maxWidth: 400, margin: '40px auto' }}>
+    <div className="col-md-6 offset-md-3">
       <h2>Signup</h2>
-      <input className="form-control mb-2" name="name" placeholder="Full Name" value={form.name} onChange={onChange} required />
-      <input className="form-control mb-2" name="email" type="email" placeholder="Email" value={form.email} onChange={onChange} required />
-      <input className="form-control mb-2" name="address" placeholder="Address" value={form.address} onChange={onChange} required />
-      <input className="form-control mb-2" name="password" type="password" placeholder="Password" value={form.password} onChange={onChange} required />
-      <button className="btn btn-success w-100">Signup</button>
-      {message && <p className="mt-2 text-danger">{message}</p>}
-    </form>
+      <form onSubmit={handleSignup}>
+        <input 
+          type="text" className="form-control mb-2" placeholder="Name"
+          value={name} onChange={(e) => setName(e.target.value)} required
+        />
+        <input 
+          type="email" className="form-control mb-2" placeholder="Email"
+          value={email} onChange={(e) => setEmail(e.target.value)} required
+        />
+        <input 
+          type="text" className="form-control mb-2" placeholder="Address"
+          value={address} onChange={(e) => setAddress(e.target.value)}
+        />
+        <input 
+          type="password" className="form-control mb-2" placeholder="Password"
+          value={password} onChange={(e) => setPassword(e.target.value)} required
+        />
+        <button className="btn btn-success">Signup</button>
+      </form>
+      {message && <p>{message}</p>}
+    </div>
   );
 }
+
+export default Signup;

@@ -10,8 +10,14 @@ exports.listStores = async (req, res) => {
   let where = "WHERE 1=1";
   const params = [];
 
-  if (q) { where += " AND s.name LIKE ?"; params.push(`%${q}%`); }
-  if (address) { where += " AND s.address LIKE ?"; params.push(`%${address}%`); }
+  if (q) {
+    where += " AND s.name LIKE ?";
+    params.push(`%${q}%`);
+  }
+  if (address) {
+    where += " AND s.address LIKE ?";
+    params.push(`%${address}%`);
+  }
 
   // For per-user rating column we need the current user id (requireAuth before this)
   params.unshift(req.user?.id ?? null);
@@ -26,18 +32,29 @@ exports.listStores = async (req, res) => {
     GROUP BY s.id
     ORDER BY ${S} ${D}`;
 
-  const [rows] = await pool.query(sql, params);
-  res.json(rows);
+  try {
+    const [rows] = await pool.query(sql, params);
+    res.json(rows);
+  } catch (e) {
+    console.error("List stores error:", e);
+    res.status(500).json({ error: "Server error" });
+  }
 };
 
 exports.createStore = async (req, res) => {
-  const errors = validationResult(req);
-  if (!errors.isEmpty()) return res.status(400).json({ errors: errors.array() });
+  try {
+    const errors = validationResult(req);
+    if (!errors.isEmpty())
+      return res.status(400).json({ errors: errors.array() });
 
-  const { name, email, address } = req.body;
-  const [r] = await pool.execute(
-    "INSERT INTO stores (name,email,address) VALUES (?,?,?)",
-    [name, email || null, address || null]
-  );
-  res.status(201).json({ id: r.insertId });
+    const { name, email, address } = req.body;
+    const [r] = await pool.execute(
+      "INSERT INTO stores (name,email,address) VALUES (?,?,?)",
+      [name, email || null, address || null]
+    );
+    res.status(201).json({ id: r.insertId });
+  } catch (e) {
+    console.error("Store add error:", e);
+    res.status(500).json({ error: "Server error" });
+  }
 };

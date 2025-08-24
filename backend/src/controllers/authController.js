@@ -32,6 +32,7 @@ exports.signup = async (req, res) => {
     const [[user]] = await pool.query("SELECT * FROM users WHERE id=?", [r.insertId]);
     res.status(201).json({ token: sign(user) });
   } catch (e) {
+    console.error("Signup error:", e);  // <-- Logs detailed error to console
     if (e.code === "ER_DUP_ENTRY")
       return res.status(400).json({ error: "Email already exists" });
     res.status(500).json({ error: "Server error" });

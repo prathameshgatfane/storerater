@@ -1,0 +1,45 @@
+.home-hero {
+  opacity: 0;
+  animation: fadeInDown 0.8s ease-in-out forwards;
+}
+
+@keyframes fadeInDown {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  from {
+    opacity: 0;
+    transform: translateY(-30px);
+  }
+}
+
+.home-card:hover {
+  transform: scale(1.04) rotate(-2deg);
+  box-shadow: 0 8px 32px rgba(208, 0, 139, 0.25);
+  border-color: #F554A6;
+}
+
+.blog-card:hover {
+  transform: scale(1.03) rotate(1deg);
+  background-color: #f9e6f2;
+  box-shadow: 0 8px 22px rgba(213, 0, 139, 0.15);
+}
+
+.magenta-btn:hover,
+.home-card:hover .magenta-btn {
+  background: linear-gradient(90deg, #F554A6 60%, #D0008B 100%);
+  color: #fff;
+  transform: scale(1.04);
+  box-shadow: 0px 8px 32px rgba(213, 0, 139, 0.25);
+}
+
+.home-cta:hover {
+  background: #fff;
+  color: #D0008B;
+  transform: scale(1.07);
+}
+
+.home-container {
+  font-family: 'Open Sans', sans-serif;
+}
